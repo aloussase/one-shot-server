@@ -13,6 +13,7 @@ type Opts struct {
 	Path   string
 	Status int
 	Body   string
+	Help   bool
 }
 
 func main() {
@@ -21,9 +22,16 @@ func main() {
 	flag.StringVar(&opts.Path, "path", "/", "The path from which to serve the resource")
 	flag.IntVar(&opts.Port, "port", 3000, "The port from which to start the server")
 	flag.IntVar(&opts.Status, "status", 200, "The status code with which to respond")
-	flag.StringVar(&opts.Body, "body", "", "A path to a file containing the resource to serve as JSON")
+	flag.StringVar(&opts.Body, "body", "", "A path to a file containing the resource to serve as JSON. May be omitted.")
+	flag.BoolVar(&opts.Help, "help", false, "Print usage information")
 
 	flag.Parse()
+
+	if opts.Help {
+		fmt.Println("Usage: one-shot-server [OPTIONS]\n")
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
 
 	http.HandleFunc(opts.Path, func(w http.ResponseWriter, req *http.Request) {
 		if opts.Body == "" {
