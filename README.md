@@ -24,11 +24,21 @@ Usage: one-shot-server [OPTIONS]
 
 ### Go
 
+If you use Go, you can install the binary via the CLI:
+
 ```bash
 go install github.com/aloussase/one-shot-server
 ```
 
 ### Docker
+
+You can use the provided Docker image to avoid having to install Go:
+
+```bash
+docker run -it -p 3001:3001 \
+    -v ./assets/dogs.json:/dogs.json \
+    aloussase69/one-shot-server -path '/hello' -port 3001 -body /dogs.json
+```
 
 ## License
 
