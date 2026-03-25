@@ -9,17 +9,19 @@ import (
 )
 
 type Opts struct {
-	Port   int
-	Path   string
-	Status int
-	Body   string
-	Help   bool
+	Port     int
+	Path     string
+	Status   int
+	Body     string
+	Help     bool
+	Fallback string
 }
 
 func main() {
 	var opts Opts
 
 	flag.StringVar(&opts.Path, "path", "/", "The path from which to serve the resource")
+	flag.StringVar(&opts.Fallback, "fallback", "/", "The URL to fallback to for unmapped paths")
 	flag.IntVar(&opts.Port, "port", 3000, "The port from which to start the server")
 	flag.IntVar(&opts.Status, "status", 200, "The status code with which to respond")
 	flag.StringVar(&opts.Body, "body", "", "A path to a file containing the resource to serve as JSON. May be omitted.")
@@ -47,6 +49,19 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(opts.Status)
 		w.Write(data)
+	})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		if opts.Fallback == "" {
+			w.WriteHeader(404)
+			return
+		}
+
+		redirectTo := opts.Fallback + req.URL.Path
+		log.Printf("Redirecting request to: %s", redirectTo)
+
+		w.Header().Set("Location", redirectTo)
+		w.WriteHeader(302)
 	})
 
 	fmt.Printf(
